@@ -110,7 +110,8 @@ get '/:module' => sub {
         pomtoc   => $pomtoc,
         filename => $file,
         title    => $module,
-        module   => $module
+        module   => $module,
+        empty    => $pomhtml =~ /^\s*$/g ? 1 : 0,
     );
 };
 
@@ -155,7 +156,13 @@ Error processing POD: <%= $error %>
 <div id="title">POD for <%= $module %> (<%= $filename %>)</div>
 <div style="height:20px;"></div>
 <div id="toc"><%== $pomtoc %></div>
-<div id="pom"><%== $pomhtml %></pom>
+<div id="pom">
+% if ($empty) {
+<div style="height:20px;"></div>
+<div id="nopod">This module has no POD :(</div>
+% }
+<%== $pomhtml %>
+</div>
 
 @@ layouts/html5.html.ep
 <!doctype html>
