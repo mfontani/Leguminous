@@ -173,7 +173,7 @@ Error processing POD: <%= $error %>
     </style>
 </head>
 <body>
-     <div id="logo">Powered by Leguminous</div>
+     <div id="logo">Powered by <a href="http://github.com/mfontani/Leguminous">Leguminous</a></div>
      <%== content %>
 </body>
 </html>
