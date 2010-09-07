@@ -13,7 +13,7 @@ use base qw( Pod::POM::View::HTML );
 
 # Originally this did not link anything
 sub view_seq_link_transform_path {
-    my ($self, $page) = @_;
+    my ( $self, $page ) = @_;
     if ( $page eq uc $page ) {    # all uppercase is section inside page
         my $sanitized_page = $page;
         $sanitized_page =~ s/\W//g;
@@ -24,27 +24,25 @@ sub view_seq_link_transform_path {
 
 # originally this wrapped the content's presentation in <html>, unneeded
 sub view_pod {
-    my ($self, $pod) = @_;
+    my ( $self, $pod ) = @_;
     return $pod->content->present($self);
 }
 
 # changed to provide a name= tag
 sub view_head1 {
-    my ($self, $head1) = @_;
-    my $title = $head1->title->present($self);
+    my ( $self, $head1 ) = @_;
+    my $title           = $head1->title->present($self);
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
-    return "<h1><a name=\"__$sanitized_title\">$title</a></h1>\n\n"
-    . $head1->content->present($self);
+    return "<h1><a name=\"__$sanitized_title\">$title</a></h1>\n\n" . $head1->content->present($self);
 }
 
 sub view_head2 {
-    my ($self, $head2) = @_;
-    my $title = $head2->title->present($self);
+    my ( $self, $head2 ) = @_;
+    my $title           = $head2->title->present($self);
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
-    return "<h2><a name=\"__$sanitized_title\">$title</a></h2>\n\n"
-    . $head2->content->present($self);
+    return "<h2><a name=\"__$sanitized_title\">$title</a></h2>\n\n" . $head2->content->present($self);
 }
 
 # have no need for head3..head5 for now
@@ -53,7 +51,7 @@ package Leguminous::TOC;
 use base qw( Pod::POM::View::HTML );
 
 sub view_pod {
-    my ($self, $pod) = @_;
+    my ( $self, $pod ) = @_;
     my $content = $pod->content->present($self);
     return $content;
 }
@@ -61,31 +59,35 @@ sub view_pod {
 ## head1 and head2 sections should just be nested LIs
 ## FIXME slightly broken as it creates unnecessary nested ul/lis
 sub view_head1 {
-    my ($self, $head1) = @_;
-    my $title = $head1->title->present($self);
+    my ( $self, $head1 ) = @_;
+    my $title           = $head1->title->present($self);
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
-    return "</li><li><a href=\"#__$sanitized_title\">$title</a>\n<ul>\n" . $head1->content->present($self) . "</ul></li>\n";
+    return
+        "</li><li><a href=\"#__$sanitized_title\">$title</a>\n<ul>\n"
+      . $head1->content->present($self)
+      . "</ul></li>\n";
 }
+
 sub view_head2 {
-    my ($self, $head2) = @_;
-    my $title = $head2->title->present($self);
+    my ( $self, $head2 ) = @_;
+    my $title           = $head2->title->present($self);
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
     return "<li><a href=\"#__$sanitized_title\">$title</a>\n" . $head2->content->present($self) . "</li>\n";
 }
 
 # make several sections return ''; basically all but headN should return ''
-sub view_head3 {''}
-sub view_head4 {''}
-sub view_head5 {''}
-sub view_over {''}
-sub view_item {''}
-sub view_for {''}
-sub view_begin {''}
-sub view_end {''}
-sub view_textblock {''}
-sub view_verbatim {''}
+sub view_head3     { '' }
+sub view_head4     { '' }
+sub view_head5     { '' }
+sub view_over      { '' }
+sub view_item      { '' }
+sub view_for       { '' }
+sub view_begin     { '' }
+sub view_end       { '' }
+sub view_textblock { '' }
+sub view_verbatim  { '' }
 
 package main;
 use Mojolicious::Lite;
@@ -96,17 +98,24 @@ get '/' => 'index';
 get '/:module' => sub {
     my $self   = shift;
     my $module = $self->param('module');
-    my $file = _get_filename_for_module($module)
-        or return $self->render( template => '404', module => $module );
+    my $file   = _get_filename_for_module($module)
+      or return $self->render( template => '404', module => $module );
     my $parser  = Pod::POM->new;
     my $pom     = $parser->parse_file($file);
     my $pomhtml = Leguminous::View->print($pom);
     my $pomtoc  = Leguminous::TOC->print($pom);
-    $self->render( template => 'pod', pomhtml => $pomhtml, pomtoc => $pomtoc, filename => $file, title => $module, module => $module );
+    $self->render(
+        template => 'pod',
+        pomhtml  => $pomhtml,
+        pomtoc   => $pomtoc,
+        filename => $file,
+        title    => $module,
+        module   => $module
+    );
 };
 
 sub _get_filename_for_module {
-    my $module = shift;
+    my $module      = shift;
     my $mod_slashes = $module;
     $mod_slashes =~ s!::!/!g;
     for my $prefix ( './', './lib/' ) {
