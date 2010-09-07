@@ -1,0 +1,210 @@
+#!/usr/bin/env perl
+# Leguminous is Copyright (C) 2010, Marco Fontani <MFONTANI@cpan.org>.
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Artistic License 2.0.
+# This program is distributed in the hope that it will be
+# useful, but it is provided "as is" and without any express
+# or implied warranties. For details, see the full text of
+# the license at the following URL:
+# http://www.opensource.org/licenses/artistic-license-2.0.php
+
+package Leguminous::View;
+use base qw( Pod::POM::View::HTML );
+
+# Originally this did not link anything
+sub view_seq_link_transform_path {
+    my ($self, $page) = @_;
+    if ( $page eq uc $page ) {    # all uppercase is section inside page
+        my $sanitized_page = $page;
+        $sanitized_page =~ s/\W//g;
+        return "#__$sanitized_page";
+    }
+    return qq{/$page};
+}
+
+# originally this wrapped the content's presentation in <html>, unneeded
+sub view_pod {
+    my ($self, $pod) = @_;
+    return $pod->content->present($self);
+}
+
+# changed to provide a name= tag
+sub view_head1 {
+    my ($self, $head1) = @_;
+    my $title = $head1->title->present($self);
+    my $sanitized_title = $title;
+    $sanitized_title =~ s/\W//g;
+    return "<h1><a name=\"__$sanitized_title\">$title</a></h1>\n\n"
+    . $head1->content->present($self);
+}
+
+sub view_head2 {
+    my ($self, $head2) = @_;
+    my $title = $head2->title->present($self);
+    my $sanitized_title = $title;
+    $sanitized_title =~ s/\W//g;
+    return "<h2><a name=\"__$sanitized_title\">$title</a></h2>\n\n"
+    . $head2->content->present($self);
+}
+
+# have no need for head3..head5 for now
+
+package Leguminous::TOC;
+use base qw( Pod::POM::View::HTML );
+
+sub view_pod {
+    my ($self, $pod) = @_;
+    my $content = $pod->content->present($self);
+    return $content;
+}
+
+## head1 and head2 sections should just be nested LIs
+## FIXME slightly broken as it creates unnecessary nested ul/lis
+sub view_head1 {
+    my ($self, $head1) = @_;
+    my $title = $head1->title->present($self);
+    my $sanitized_title = $title;
+    $sanitized_title =~ s/\W//g;
+    return "</li><li><a href=\"#__$sanitized_title\">$title</a>\n<ul>\n" . $head1->content->present($self) . "</ul></li>\n";
+}
+sub view_head2 {
+    my ($self, $head2) = @_;
+    my $title = $head2->title->present($self);
+    my $sanitized_title = $title;
+    $sanitized_title =~ s/\W//g;
+    return "<li><a href=\"#__$sanitized_title\">$title</a>\n" . $head2->content->present($self) . "</li>\n";
+}
+
+# make several sections return ''; basically all but headN should return ''
+sub view_head3 {''}
+sub view_head4 {''}
+sub view_head5 {''}
+sub view_over {''}
+sub view_item {''}
+sub view_for {''}
+sub view_begin {''}
+sub view_end {''}
+sub view_textblock {''}
+sub view_verbatim {''}
+
+package main;
+use Mojolicious::Lite;
+use Pod::POM;
+
+get '/' => 'index';
+
+get '/:module' => sub {
+    my $self   = shift;
+    my $module = $self->param('module');
+    my $file = _get_filename_for_module($module)
+        or return $self->render( template => '404', module => $module );
+    my $parser  = Pod::POM->new;
+    my $pom     = $parser->parse_file($file);
+    my $pomhtml = Leguminous::View->print($pom);
+    my $pomtoc  = Leguminous::TOC->print($pom);
+    $self->render( template => 'pod', pomhtml => $pomhtml, pomtoc => $pomtoc, filename => $file, title => $module, module => $module );
+};
+
+sub _get_filename_for_module {
+    my $module = shift;
+    my $mod_slashes = $module;
+    $mod_slashes =~ s!::!/!g;
+    for my $prefix ( './', './lib/' ) {
+        my $curfile = $prefix . $mod_slashes;
+        return $curfile if -f $curfile;
+        $curfile =~ s/$/\.pod/;
+        return $curfile if -f $curfile;
+        $curfile =~ s/pod$/pm/;
+        return $curfile if -f $curfile;
+    }
+    return;
+}
+
+app->start;
+__DATA__
+
+@@ 404.html.ep
+% layout 'html5';
+<h1>Ach!</h1>
+<div class="error">
+    POD for module <%= $module %> was not found.
+</div>
+
+@@ index.html.ep
+% layout 'html5';
+<h1>Leguminous</h1>
+<div>Welcome to the Leguminous POD viewer.</div>
+Go to /Module::Name to see its POD.
+
+@@ pod_error.html.ep
+% my $title = 'POD error';
+% layout 'html5';
+Error processing POD: <%= $error %>
+
+@@ pod.html.ep
+% layout 'html5';
+<div id="title">POD for <%= $module %> (<%= $filename %>)</div>
+<div style="height:20px;"></div>
+<div id="toc"><%== $pomtoc %></div>
+<div id="pom"><%== $pomhtml %></pom>
+
+@@ layouts/html5.html.ep
+<!doctype html>
+<html>
+<head>
+    <title>Leguminous</title>
+    <style>
+    body { margin: 0px; padding: 0px; margin-left: 5px; margin-right: 5px; }
+    #title { height:25px; width:100%; text-align:center; background-color:#eeeebb; position: fixed; top: 0px; }
+    #pom { width: 800px; margin: auto; }
+    #toc { font-size: 75%; position:fixed; background-color: #EEE; right: 0px; top: 25px; }
+    #toc ul { margin: 0px; padding: 0px; margin-top: 5px; margin-bottom: 5px; }
+    #toc li { list-style-type: none; padding-left: 15px; padding-right: 5px; }
+    #logo { text-align: center; font-size: 60%; position:fixed; right: 2px; top: 1px; z-index: 9;}
+    </style>
+</head>
+<body>
+     <div id="logo">Powered by Leguminous</div>
+     <%== content %>
+</body>
+</html>
+
+__END__
+
+=head1 NAME
+
+Leguminous - See the POD for the current directory on the web
+
+=head1 USAGE
+
+    cd /where/your/modules/are
+
+    Leguminous daemon --listen http://127.0.0.1:1234
+    Leguminous fastcgi
+    Leguminous daemon_prefork --listen http://127.0.0.1:1234 \
+        --minspare 2 --maxspare 10 --servers 5
+
+Searchs both the directory it's launched from and lib/ for files.
+Checks .pod before .pm.
+
+=head1 COPYRIGHT
+
+Leguminous is Copyright (C) 2010, Marco Fontani L<MFONTANI@cpan.org>.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the Artistic License 2.0.
+This program is distributed in the hope that it will be
+useful, but it is provided "as is" and without any express
+or implied warranties. For details, see the full text of
+the license at the following URL:
+L<http://www.opensource.org/licenses/artistic-license-2.0.php>
+
+=head1 SEE ALSO
+
+L<Mojolicious::Lite>
+L<Pod::POM>
+L<Pod::POM::View::HTML>
+
+=cut
