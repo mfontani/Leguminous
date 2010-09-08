@@ -119,7 +119,7 @@ sub _get_filename_for_module {
     my $module      = shift;
     my $mod_slashes = $module;
     $mod_slashes =~ s!::!/!g;
-    for my $prefix ( './', './lib/' ) {
+    for my $prefix ( './', './lib/', './inc/' ) {
         my $curfile = $prefix . $mod_slashes;
         return $curfile if -f $curfile;
         $curfile =~ s/$/\.pod/;
