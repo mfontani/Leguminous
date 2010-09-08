@@ -8,6 +8,9 @@
 # the license at the following URL:
 # http://www.opensource.org/licenses/artistic-license-2.0.php
 
+use FindBin;
+use lib "$FindBin::Bin/inc";
+
 package Leguminous::View;
 use base qw( Pod::POM::View::HTML );
 
