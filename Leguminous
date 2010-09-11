@@ -8,6 +8,9 @@
 # the license at the following URL:
 # http://www.opensource.org/licenses/artistic-license-2.0.php
 
+use FindBin;
+use lib "$FindBin::Bin/inc";
+
 package Leguminous::View;
 use base qw( Pod::POM::View::HTML );
 
@@ -34,7 +37,7 @@ sub view_head1 {
     my $title           = $head1->title->present($self);
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
-    return "<h1><a name=\"__$sanitized_title\">$title</a></h1>\n\n" . $head1->content->present($self);
+    return "<h1><a id=\"__$sanitized_title\">$title</a></h1>\n\n" . $head1->content->present($self);
 }
 
 sub view_head2 {
@@ -42,60 +45,111 @@ sub view_head2 {
     my $title           = $head2->title->present($self);
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
-    return "<h2><a name=\"__$sanitized_title\">$title</a></h2>\n\n" . $head2->content->present($self);
+    return "<h2><a id=\"__$sanitized_title\">$title</a></h2>\n\n" . $head2->content->present($self);
 }
 
 # have no need for head3..head5 for now
 
-package Leguminous::TOC;
-use base qw( Pod::POM::View::HTML );
-
-sub view_pod {
-    my ( $self, $pod ) = @_;
-    my $content = $pod->content->present($self);
-    return $content;
-}
-
-## head1 and head2 sections should just be nested LIs
-## FIXME slightly broken as it creates unnecessary nested ul/lis
-sub view_head1 {
-    my ( $self, $head1 ) = @_;
-    my $title           = $head1->title->present($self);
-    my $sanitized_title = $title;
-    $sanitized_title =~ s/\W//g;
-    return
-        "</li><li><a href=\"#__$sanitized_title\">$title</a>\n<ul>\n"
-      . $head1->content->present($self)
-      . "</ul></li>\n";
-}
-
-sub view_head2 {
-    my ( $self, $head2 ) = @_;
-    my $title           = $head2->title->present($self);
-    my $sanitized_title = $title;
-    $sanitized_title =~ s/\W//g;
-    return "<li><a href=\"#__$sanitized_title\">$title</a>\n" . $head2->content->present($self) . "</li>\n";
-}
-
-# make several sections return ''; basically all but headN should return ''
-sub view_head3     { '' }
-sub view_head4     { '' }
-sub view_head5     { '' }
-sub view_over      { '' }
-sub view_item      { '' }
-sub view_for       { '' }
-sub view_begin     { '' }
-sub view_end       { '' }
-sub view_textblock { '' }
-sub view_verbatim  { '' }
-
 package main;
 use Mojolicious::Lite;
 use Pod::POM;
+use JSON;
 
-get '/' => 'index';
+my @additional_directories;
+@additional_directories = split(':',$ENV{LEGUMINOUS_SUBDIRS}) if defined $ENV{LEGUMINOUS_SUBDIRS};
 
-get '/:module' => sub {
+get '/' => sub {
+    my $self = shift;
+    $self->render(
+    template => 'pod',
+        pomhtml  => '<h1>Welcome!</h1><p>Choose a module on the left hand side list to see its POD</p>',
+        filename => '',
+        title    => 'Welcome',
+        module   => 'Welcome',
+        empty    => 1,
+    );
+};
+
+sub href_to_jsontree {
+    my $href = shift;
+    my $name = shift;
+    my %h;
+    if ( defined $name ) {
+        $h{text} = $name;
+    }
+    if ( grep $_ ne '__module', keys %$href ) {
+        $h{children} = [];
+        for ( sort grep $_ ne '__module', keys %$href ) {
+            push @{ $h{children} }, href_to_jsontree( $href->{$_}, $_ );
+        }
+    } else {
+        $h{leaf} = 'true';
+        $h{id}   = $href->{__module};
+    }
+    return defined $name ? { %h } : $h{children};
+}
+
+any '/moduleslist' => sub {
+    my $self = shift;
+    # walk inc/ and lib/ to find .pod or .pm
+    use File::Find;
+    my @files;
+    {
+        no warnings; # can't stat inc: no such file or directory
+        finddepth(
+            {
+                no_chdir => 1,
+                wanted   => sub {
+                    return unless -f $File::Find::name and $File::Find::name =~ /\.p(?:od|m)$/i;
+                    push @files, $File::Find::name;
+                },
+            },
+            ( @additional_directories, qw/inc lib/ )
+        );
+    }
+
+    my @modules = @files;
+
+    my $add = join('|', @additional_directories);
+    foreach (@modules) {
+        s/^(?:\.|lib|inc|$add)\///;
+        s!/!::!g;
+        s/\.p(?:od|m)$//;
+    }
+
+    my %unique = map { $_ => 1 } @modules;
+    @modules = sort { lc $a cmp lc $b } keys %unique;
+
+    # hierarchically
+    my %hierarchy;
+    for my $module ( @modules ) {
+        my @dirs = split ('::', $module);
+        my $hfirst = \%hierarchy;
+        for my $dir ( @dirs ) {
+            if ( $dir eq $dirs[-1] ) {
+                $hfirst->{$dir}->{__module} = $module;
+                last;
+            }
+            if ( !exists $hfirst->{$dir} ) {
+                $hfirst->{$dir} = {};
+            }
+            $hfirst = $hfirst->{$dir};
+            next;
+        }
+    }
+    my $modulestree = href_to_jsontree( \%hierarchy );
+    my $json = '';
+    eval { $json = encode_json( $modulestree ) };
+    warn $@ if $@;
+    $json =~ s/"true"/true/g;
+
+    $self->render(
+        template    => 'moduleslist',
+        modulestree => $json,
+    );
+};
+
+any '/html/:module' => sub {
     my $self   = shift;
     my $module = $self->param('module');
     my $file   = _get_filename_for_module($module)
@@ -103,11 +157,27 @@ get '/:module' => sub {
     my $parser  = Pod::POM->new;
     my $pom     = $parser->parse_file($file);
     my $pomhtml = Leguminous::View->print($pom);
-    my $pomtoc  = Leguminous::TOC->print($pom);
+    $self->render(
+        template => 'podhtml',
+        pomhtml  => $pomhtml,
+        empty    => $pomhtml =~ /^\s*$/g ? 1 : 0,
+    );
+};
+
+any '/:module' => sub {
+    my $self   = shift;
+    my $module = $self->param('module');
+    my $file   = _get_filename_for_module($module)
+      or return $self->render( template => '404', module => $module );
+    my $parser  = Pod::POM->new;
+    my $pom     = $parser->parse_file($file);
+    my $pomhtml = Leguminous::View->print($pom);
+    $pomhtml    =~ s/\n/\\n/g;
+    $pomhtml    =~ s/\r/\\r/g;
+    $pomhtml    =~ s/'/\\'/g;
     $self->render(
         template => 'pod',
         pomhtml  => $pomhtml,
-        pomtoc   => $pomtoc,
         filename => $file,
         title    => $module,
         module   => $module,
@@ -119,7 +189,7 @@ sub _get_filename_for_module {
     my $module      = shift;
     my $mod_slashes = $module;
     $mod_slashes =~ s!::!/!g;
-    for my $prefix ( './', './lib/' ) {
+    for my $prefix ( './', './lib/', './inc/', map { "./$_/" } @additional_directories ) {
         my $curfile = $prefix . $mod_slashes;
         return $curfile if -f $curfile;
         $curfile =~ s/$/\.pod/;
@@ -133,36 +203,31 @@ sub _get_filename_for_module {
 app->start;
 __DATA__
 
-@@ 404.html.ep
+@@ not_found.html.ep
 % layout 'html5';
+<h1>Page not found</h1>
+
+@@ 404.html.ep
 <h1>Ach!</h1>
 <div class="error">
     POD for module <%= $module %> was not found.
 </div>
-
-@@ index.html.ep
-% layout 'html5';
-<h1>Leguminous</h1>
-<div>Welcome to the Leguminous POD viewer.</div>
-Go to /Module::Name to see its POD.
 
 @@ pod_error.html.ep
 % my $title = 'POD error';
 % layout 'html5';
 Error processing POD: <%= $error %>
 
-@@ pod.html.ep
-% layout 'html5';
-<div id="title">POD for <%= $module %> (<%= $filename %>)</div>
-<div style="height:20px;"></div>
-<div id="toc"><%== $pomtoc %></div>
-<div id="pom">
-% if ($empty) {
-<div style="height:20px;"></div>
-<div id="nopod">This module has no POD :(</div>
-% }
-<%== $pomhtml %>
+@@ podhtml.html.ep
+<div style="padding: 10px;">
+<% if ( $empty ) {  %><pre>File found but no POD in file :(</pre><% } else { %><%== $pomhtml %><% } %>
 </div>
+
+@@ moduleslist.html.ep
+<%== $modulestree %>
+
+@@ pod.html.ep
+% layout 'extjs';
 
 @@ layouts/html5.html.ep
 <!doctype html>
@@ -173,15 +238,125 @@ Error processing POD: <%= $error %>
     body { margin: 0px; padding: 0px; margin-left: 5px; margin-right: 5px; }
     #title { height:25px; width:100%; text-align:center; background-color:#eeeebb; position: fixed; top: 0px; }
     #pom { width: 800px; margin: auto; }
-    #toc { font-size: 75%; position:fixed; background-color: #EEE; right: 0px; top: 25px; }
-    #toc ul { margin: 0px; padding: 0px; margin-top: 5px; margin-bottom: 5px; }
-    #toc li { list-style-type: none; padding-left: 15px; padding-right: 5px; }
     #logo { text-align: center; font-size: 60%; position:fixed; right: 2px; top: 1px; z-index: 9;}
     </style>
 </head>
 <body>
      <div id="logo">Powered by <a href="http://github.com/mfontani/Leguminous">Leguminous</a></div>
      <%== content %>
+</body>
+</html>
+
+@@ layouts/extjs.html.ep
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title id="title">Leguminous</title>
+    <link rel="stylesheet" type="text/css" href="/ext-3.2.1/resources/css/ext-all.css" />
+    <link rel="stylesheet" type="text/css" href="/ext-3.2.1/resources/css/xtheme-gray.css"/>
+    <script type="text/javascript" src="/ext-3.2.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/ext-3.2.1/ext-all-debug.js"></script>
+    <style>
+    #podpanel h1 { font-size: 1.9em; }
+    #podpanel h2 { font-size: 1.65em; }
+    #podpanel h3 { font-size: 1.4em; }
+    #podpanel pre { background-color: #EEE; padding: 10px; padding-left: 30px; }
+    #podpanel p { margin: 10px; }
+    </style>
+</head>
+<body>
+    <script type="text/javascript">
+
+        Ext.onReady(function(){
+            var modulesListLoader = new Ext.tree.TreeLoader({
+                dataUrl:'/moduleslist'
+            });
+            var modulesListRoot = new Ext.tree.AsyncTreeNode({
+                text: 'Modules List',
+                expanded: true,
+            });
+            var viewport = new Ext.Viewport({
+                layout: 'border',
+                renderTo: Ext.getBody(),
+                id: 'main_viewport',
+                items: [{
+                    region: 'north',
+                    xtype: 'panel',
+                    title: 'Leguminous -- A Mojolicious POD viewer',
+                },{
+                    split: true,
+                    region: 'west',
+                    width: 200,
+                    layout: 'border',
+                    id: 'west_section',
+                    border: false,
+                    items: [
+                    {
+                        title: 'Choose a module..',
+                        region: 'center',
+                        split: true,
+                        xtype: 'treepanel',
+                        id: 'files-list',
+                        border: false,
+                        useArrows: true,
+                        autoScroll: true,
+                        animate: true,
+                        containerScroll: true,
+                        bodyCssClass: 'tree-body',
+                        loader: modulesListLoader,
+                        rootVisible: false,
+                        root: modulesListRoot,
+                        listeners: {
+                            click: function(node, event){
+                                if (!node.isLeaf()) { return; }
+                                var newtab = add_tab( node.text, 'Updating content...' );
+                                newtab.load({
+                                    url: '/html/' + node.id,
+                                    text: 'Updating...',
+                                });
+                            }
+                        }
+                    }],
+                },{
+                    region: 'center',
+                    xtype: 'tabpanel',
+                    id: 'podpanel',
+                    activeTab: 0,
+                    enableTabScroll: true,
+                    defaults: {
+                        autoScroll: true,
+                    },
+                    items: [{
+                        closable: true,
+                        title: '<%== $module %>',
+                        html: '<%== $pomhtml %>'
+                    }],
+                }]
+            });
+            function add_tab ( tab_title, tab_html ) {
+                var tabs = viewport.items.items[2];
+                tab = tabs.add({
+                    title: tab_title,
+                    closable: true,
+                    html: tab_html,
+                });
+                tabs.setActiveTab(tab);
+                return tab;
+            }
+            var leguminous_section_clicked = function(e) {
+                Ext.get(e.target).highlight();
+                // scrolling to element, maybe:
+                var el = Ext.fly('section2');
+                if(el){
+                    var tabs = viewport.items.items[2];
+                    var top = (el.getOffsetsTo(tabs.body)[1]) + tabs.body.dom.scrollTop; // tabs was: "this"
+                    //tabs.body.scrollTo('top', top-25, {duration:.75, callback: tabs.hlMember.createDelegate(tabs, [member])}); // tabs was: "this"
+                    tabs.body.scrollTo('top',top-25);//,{duration:.75});
+                }
+            }
+            Ext.select('.leguminous-section').on('click', leguminous_section_clicked);
+        });
+    </script>
 </body>
 </html>
 
@@ -206,6 +381,11 @@ Checks .pod before .pm.
 =head1 COPYRIGHT
 
 Leguminous is Copyright (C) 2010, Marco Fontani L<MFONTANI@cpan.org>.
+
+=head2 EXTJS
+
+ExtJS is Copyright(c) 2006-2010 Ext JS, Inc. L<http://www.extjs.com/license>
+
 
 =head1 LICENSE
 
