@@ -54,6 +54,7 @@ package main;
 use Mojolicious::Lite;
 use Pod::POM;
 use JSON;
+use File::Slurp;
 
 my @additional_directories;
 @additional_directories = split(':',$ENV{LEGUMINOUS_SUBDIRS}) if defined $ENV{LEGUMINOUS_SUBDIRS};
@@ -164,6 +165,15 @@ any '/html/:module' => sub {
     );
 };
 
+any '/source/:module' => sub {
+    my $self   = shift;
+    my $module = $self->param('module');
+    my $file   = _get_filename_for_module($module)
+      or return $self->render( template => '404', module => $module );
+    my $data = read_file( $file );
+    $self->render(template => 'podsource', pomsource => $data);
+};
+
 any '/:module' => sub {
     my $self   = shift;
     my $module = $self->param('module');
@@ -217,6 +227,9 @@ __DATA__
 % my $title = 'POD error';
 % layout 'html5';
 Error processing POD: <%= $error %>
+
+@@ podsource.html.ep
+<pre><%= $pomsource %></pre>
 
 @@ podhtml.html.ep
 <div style="padding: 10px;">
