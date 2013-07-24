@@ -1,6 +1,6 @@
 =head1 LEGUMINOUS
 
-A POD viewer for the current directory
+A POD viewer for modules residing in the current directory or anywhere in @INC
 
 Based on Mojolicious::Lite L<http://mojolicious.org>
 
@@ -9,7 +9,7 @@ Based on Mojolicious::Lite L<http://mojolicious.org>
 Just request /Module::Name to get its pod.
 
 Searchs for bare filename, filename.pod and filename.pm, in both
-the current directory and lib/.
+the current directory, lib/, and anywhere in @INC.
 
 Links to itself for C<LE<lt>E<gt>> links which reference module names.
 
