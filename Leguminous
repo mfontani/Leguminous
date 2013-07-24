@@ -201,12 +201,16 @@ Leguminous - See the POD for the current directory on the web
     Leguminous daemon_prefork --listen http://127.0.0.1:1234 \
         --minspare 2 --maxspare 10 --servers 5
 
-Searchs both the directory it's launched from and lib/ for files.
+Searchs the directory it's launched, lib/, and the whole of C<@INC> for files.
 Checks .pod before .pm.
 
 =head1 COPYRIGHT
 
-Leguminous is Copyright (C) 2010, Marco Fontani L<MFONTANI@cpan.org>.
+Leguminous is Copyright (C) 2010,2013 Marco Fontani L<MFONTANI@cpan.org>.
+
+=head1 CONTRIBUTORS
+
+Gabor Szabo L<szabgab@gmail.com>
 
 =head1 LICENSE
 
