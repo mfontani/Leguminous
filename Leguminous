@@ -99,25 +99,25 @@ get '/' => 'index';
 get '/q' => sub {
     my $self   = shift;
     my $module = $self->param('term');
-	return $self->render(template => 'space') if $module =~ /\s/;
-	my @hits;
+    return $self->render(template => 'space') if $module =~ /\s/;
+    my @hits;
     for my $dir ( '.', './lib', @INC ) {
         next if ref $dir;
-		my @files = File::Find::Rule->file->name('*.pod', '*.pm')->relative->in($dir);
-		foreach my $f (@files) {
-			next if $f =~ /^site_perl/;
-			next if $f =~ /^5\./;
-			$f =~ s{\.(pod|pm)$}{};
-			$f =~ s{/}{::}g;
-			if ($f =~ m{$module}i) {
-				push @hits, $f;
-			}
-		}
-	}
+        my @files = File::Find::Rule->file->name('*.pod', '*.pm')->relative->in($dir);
+        foreach my $f (@files) {
+            next if $f =~ /^site_perl/;
+            next if $f =~ /^5\./;
+            $f =~ s{\.(pod|pm)$}{};
+            $f =~ s{/}{::}g;
+            if ($f =~ m{$module}i) {
+                push @hits, $f;
+            }
+        }
+    }
     $self->render(
         template => 'list',
         hits     => \@hits,
-		hitcount => scalar(@hits),
+        hitcount => scalar(@hits),
     );
 };
 
