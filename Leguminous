@@ -128,6 +128,8 @@ sub _get_filename_for_module {
         $curfile =~ s/pod$/pm/;
         return $curfile if -f $curfile;
     }
+	# spec case for then Leguminous is launched from another cwd
+	return __FILE__ if $module eq 'Leguminous';
     return;
 }
 
