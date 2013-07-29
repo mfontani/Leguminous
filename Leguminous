@@ -146,6 +146,10 @@ __DATA__
 <h1>Leguminous</h1>
 <div>Welcome to the Leguminous POD viewer.</div>
 Go to /Module::Name to see its POD.
+For example try <a href="/Mojolicious">Mojolicious</a> or 
+<a href="/Mojolicious::Lite">Mojolicious::Lite</a> or even
+<a href="/Leguminous">Leguminous</a> to read the documentation
+of this service.
 
 @@ pod_error.html.ep
 % my $title = 'POD error';
