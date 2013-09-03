@@ -94,6 +94,10 @@ use Mojolicious::Lite;
 use Pod::POM;
 use File::Find::Rule;
 
+sub module_directories {
+    return grep { -d $_ } '.', './lib', grep { !ref $_ } @INC;
+}
+
 get '/' => 'index';
 
 get '/q' => sub {
@@ -101,7 +105,7 @@ get '/q' => sub {
     my $module = $self->param('term');
     return $self->render(template => 'space') if $module =~ /\s/;
     my @hits;
-    for my $dir ( '.', './lib', @INC ) {
+    for my $dir ( module_directories() ) {
         next if ref $dir;
         my @files = File::Find::Rule->file->name('*.pod', '*.pm')->relative->in($dir);
         foreach my $f (@files) {
@@ -145,7 +149,7 @@ sub _get_filename_for_module {
     my $module      = shift;
     my $mod_slashes = $module;
     $mod_slashes =~ s!::!/!g;
-    for my $prefix ( '.', './lib', @INC ) {
+    for my $prefix ( module_directories() ) {
         next if ref $prefix;
         my $curfile = $prefix . '/' . $mod_slashes;
         return $curfile if -f $curfile;
