@@ -128,8 +128,13 @@ sub _get_filename_for_module {
         $curfile =~ s/pod$/pm/;
         return $curfile if -f $curfile;
     }
+    # spec case for then Leguminous is launched from another cwd
+    return __FILE__ if $module eq 'Leguminous';
     return;
 }
+
+# vim:expandtab
+# vim:tabstop=4
 
 app->start;
 __DATA__
@@ -146,6 +151,10 @@ __DATA__
 <h1>Leguminous</h1>
 <div>Welcome to the Leguminous POD viewer.</div>
 Go to /Module::Name to see its POD.
+For example try <a href="/Mojolicious">Mojolicious</a> or 
+<a href="/Mojolicious::Lite">Mojolicious::Lite</a> or even
+<a href="/Leguminous">Leguminous</a> to read the documentation
+of this service.
 
 @@ pod_error.html.ep
 % my $title = 'POD error';
@@ -181,7 +190,7 @@ Error processing POD: <%= $error %>
     </style>
 </head>
 <body>
-     <div id="logo">Powered by <a href="http://github.com/mfontani/Leguminous">Leguminous</a></div>
+     <div id="logo">Powered by <a href="http://github.com/mfontani/Leguminous">Leguminous</a> | <a href="/">home</a></div>
      <%== content %>
 </body>
 </html>
