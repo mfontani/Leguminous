@@ -226,7 +226,8 @@ __DATA__
 <div id="error">
     <h1>Ach!</h1>
     <p>POD (or source) for module <code><%= $module %></code> was not found.</p>
-    <p>Go <a href="/">to the homepage</a>?</p>
+    <p>Maybe you can find it on <a href="https://metacpan.org/search?q=<%= $module %>">MetaCPAN</a>.</p>
+    <p><a href="/">Back to the homepage</a></p>
 </div>
 
 @@ space.html.ep
