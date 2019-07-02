@@ -493,7 +493,7 @@ __END__
 
 =head1 NAME
 
-Leguminous - See the POD for the current directory on the web
+Leguminous - See the POD for C<@INC> on the web
 
 =head1 USAGE
 
@@ -504,8 +504,7 @@ Leguminous - See the POD for the current directory on the web
     Leguminous daemon_prefork --listen http://127.0.0.1:1234 \
         --minspare 2 --maxspare 10 --servers 5
 
-Searchs the directory it's launched, lib/, and the whole of C<@INC> for files.
-Checks .pod before .pm.
+Searchs C<@INC> for files.  Checks .pod before .pm.
 
 =head1 COPYRIGHT
 
@@ -523,12 +522,17 @@ This program is distributed in the hope that it will be
 useful, but it is provided "as is" and without any express
 or implied warranties. For details, see the full text of
 the license at the following URL:
-L<http://www.opensource.org/licenses/artistic-license-2.0.php>
+L<http://www.opensource.org/licenses/artistic-license-2.0.php>.
+
+Prism JS and CSS are instead provided under the MIT license,
+available at L<https://github.com/PrismJS/prism/blob/master/LICENSE>.
 
 =head1 SEE ALSO
 
 L<Mojolicious::Lite>
 L<Pod::POM>
 L<Pod::POM::View::HTML>
+L<Path::Tiny>
+L<File::Find::Rule>
 
 =cut
