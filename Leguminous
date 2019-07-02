@@ -132,6 +132,7 @@ get '/' => sub {
     $self->render(
         template => 'index',
         title    => '',
+        module   => '.',
     );
 };
 
@@ -158,6 +159,7 @@ get '/q' => sub {
         hits     => \@hits,
         hitcount => scalar(@hits),
         title    => $module,
+        module   => $module,
     );
 };
 
@@ -238,6 +240,7 @@ We cannot handle spaces in the search term.
 % layout 'html5';
 <div id=list>
     <h1>Leguminous</h1>
+    %= include 'form'
     <h2>Search results for <code><%= $title %></code></h2>
     % if ($hitcount) {
     <ul>
@@ -248,6 +251,14 @@ We cannot handle spaces in the search term.
     % } else {
     No modules found.
     % }
+</div>
+
+@@ form.html.ep
+<div id=form>
+    <form action="/q">
+        <input name="term" value="<%= $module %>">
+        <input type="submit" value="Search">
+    </form>
 </div>
 
 @@ index.html.ep
@@ -267,12 +278,7 @@ We cannot handle spaces in the search term.
         <a href="/Leguminous">Leguminous</a> to read the documentation
         of this service.
     </p>
-    <div>
-        <form action="/q">
-            <input name="term" value=".">
-            <input type="submit" value="Search">
-        </form>
-    </div>
+    %= include 'form'
 </div>
 
 @@ pod.html.ep
