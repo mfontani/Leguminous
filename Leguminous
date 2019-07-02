@@ -13,6 +13,29 @@
 package Leguminous::View;
 use base qw( Pod::POM::View::HTML );
 
+sub view_seq_link {
+    my ($self, $link) = @_;
+
+    if (my ($text, $link) = split m![|]!, $link, 2) {
+        if ($link =~ m!\A<a[ ]href!xms) {
+            $text =~ s!&!&amp;!xmsg;
+            $text =~ s!<!&lt;!xmsg;
+            $text =~ s!>!&gt;!xmsg;
+            $link =~ s!\A(<a[ ]href[^>]+>)[^<]+</a>!$1$text</a>!xms;
+            return $link;
+        }
+        if ($link =~ m!\Ahttps?:!xms) {
+            $text =~ s!&!&amp;!xmsg;
+            $text =~ s!<!&lt;!xmsg;
+            $text =~ s!>!&gt;!xmsg;
+            $link = qq!<a href="$link">$text</a>!;
+            return $link;
+        }
+    }
+
+    return Pod::POM::View::HTML::view_seq_link($self, $link);
+}
+
 # Originally this did not link anything
 sub view_seq_link_transform_path {
     my ( $self, $page ) = @_;
