@@ -19,7 +19,7 @@ sub view_seq_link_transform_path {
     if ( $page eq uc $page ) {    # all uppercase is section inside page
         my $sanitized_page = $page;
         $sanitized_page =~ s/\W//g;
-        return "#__$sanitized_page";
+        return "#$sanitized_page";
     }
     return qq{/$page};
 }
@@ -36,7 +36,7 @@ sub view_head1 {
     my $title           = $head1->title->present($self);
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
-    return "<h1><a name=\"__$sanitized_title\">$title</a></h1>\n\n" . $head1->content->present($self);
+    return "<h1><a name=\"$sanitized_title\">$title</a></h1>\n\n" . $head1->content->present($self);
 }
 
 sub view_head2 {
@@ -44,7 +44,7 @@ sub view_head2 {
     my $title           = $head2->title->present($self);
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
-    return "<h2><a name=\"__$sanitized_title\">$title</a></h2>\n\n" . $head2->content->present($self);
+    return "<h2><a name=\"$sanitized_title\">$title</a></h2>\n\n" . $head2->content->present($self);
 }
 
 # have no need for head3..head5 for now
@@ -92,7 +92,7 @@ sub view_head1 {
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
     return
-        "<li><a href=\"#__$sanitized_title\">$title</a>\n<ul>\n"
+        "<li><a href=\"#$sanitized_title\">$title</a>\n<ul>\n"
       . $head1->content->present($self)
       . "</ul></li>\n";
 }
@@ -102,7 +102,7 @@ sub view_head2 {
     my $title           = $head2->title->present($self);
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
-    return "<li><a href=\"#__$sanitized_title\">$title</a>\n" . $head2->content->present($self) . "</li>\n";
+    return "<li><a href=\"#$sanitized_title\">$title</a>\n" . $head2->content->present($self) . "</li>\n";
 }
 
 # make several sections return ''; basically all but headN should return ''
