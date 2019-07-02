@@ -193,8 +193,8 @@ We cannot handle spaces in the search term.
 % layout 'html5';
 % if ($hitcount) {
 <ul>
-% foreach my $file (@$hits) {
-<li> <a href="/<%= $file %>"><%= $file %></a>
+% for my $file (@$hits) {
+<li><a href="/<%= $file %>"><%= $file %></a>
 % }
 </ul>
 % } else {
