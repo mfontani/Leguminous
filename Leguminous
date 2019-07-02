@@ -286,13 +286,13 @@ We cannot handle spaces in the search term.
 <div id="title">
     <div><a href="/">Leguminous</a> - POD for <code><%= $module %></code></div>
     <div>from <a href="/src/<%= $module %>"><code><%= $filename %></code></a></div>
+    <details id="toc">
+        <summary>ToC</summary>
+        <div id="tocpom">
+            <%== $pomtoc %>
+        </div>
+    </details>
 </div>
-<details id="toc">
-    <summary>ToC</summary>
-    <div id="tocpom">
-        <%== $pomtoc %>
-    </div>
-</details>
 <div id="pom">
 % if ($empty) {
 <div style="height:20px;"></div>
@@ -317,9 +317,9 @@ We cannot handle spaces in the search term.
     <title><%= $title %><%= ' · ' if $title %>Leguminous</title>
     <style>
     body { margin: 0 .5em; padding: 0; }
-    #title { min-height:25px; width:100%; text-align:center; background-color:#eeeebb; }
+    #title { min-height:25px; width:100%; text-align:center; background-color:#eeeebb; position: sticky; top: 0px; }
     #pom, #src, #index, #list, #error { max-width: 800px; margin: auto; }
-    #toc { font-size: 75%; position:fixed; background-color: #EEE; right: 0px; top: .5em; max-height: 45%; overflow-y: scroll; }
+    #toc { font-size: 75%; text-align: initial; min-width: 10%; position:fixed; background-color: #EEE; right: 0px; top: 0px; max-height: 45%; overflow-y: scroll; }
     #toc ul { margin: 0px; padding: 0px; margin-top: 5px; margin-bottom: 5px; }
     #toc li { list-style-type: none; padding-left: 15px; padding-right: 5px; }
     #logo { text-align: center; font-size: 60%; position:sticky; bottom: 0px; z-index: 9; background-color: #eeb;}
