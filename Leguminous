@@ -49,6 +49,24 @@ sub view_head2 {
 
 # have no need for head3..head5 for now
 
+# Ensure <pre> wraps a <code> to make prism.js work
+sub view_verbatim {
+    my ($self, $text) = @_;
+    for ($text) {
+        s/&/&amp;/g;
+        s/</&lt;/g;
+        s/>/&gt;/g;
+    }
+    return "<pre><code class=lang-perl>$text</code></pre>\n\n";
+}
+
+# ...and that a <code> is set to lang-perl
+sub view_seq_code {
+    my ($self, $text) = @_;
+    return "<code class=lang-perl>$text</code>";
+}
+
+
 package Leguminous::TOC;
 use base qw( Pod::POM::View::HTML );
 
@@ -245,10 +263,12 @@ of this service.
     #toc li { list-style-type: none; padding-left: 15px; padding-right: 5px; }
     #logo { text-align: center; font-size: 60%; position:fixed; right: 2px; top: 1px; z-index: 9;}
     </style>
+    <link rel=stylesheet href=/prism.css>
 </head>
 <body>
-     <div id="logo">Powered by <a href="http://github.com/mfontani/Leguminous">Leguminous</a> | <a href="/">home</a></div>
-     <%== content %>
+    <div id="logo">Powered by <a href="http://github.com/mfontani/Leguminous">Leguminous</a> | <a href="/">home</a></div>
+    <%== content %>
+    <script src=/prism.js></script>
 </body>
 </html>
 
