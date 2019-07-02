@@ -121,7 +121,7 @@ package main;
 use Mojolicious::Lite;
 use Pod::POM;
 use File::Find::Rule;
-use Mojo::File qw<>;
+use Path::Tiny qw<>;
 
 sub module_directories {
     return grep { -d $_ } '.', './lib', grep { !ref $_ } @INC;
@@ -186,7 +186,7 @@ get '/src/:module' => sub {
     my $module   = $self->param('module');
     my $filename = _get_filename_for_module($module)
       or return $self->render( template => '404', module => $module, title => 'Error' );
-    my $file     = Mojo::File->new($filename);
+    my $file     = Path::Tiny::path($filename);
     my $source   = $file->slurp;
     $self->render(
         template => 'src',
