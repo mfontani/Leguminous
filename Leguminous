@@ -256,7 +256,7 @@ We cannot handle spaces in the search term.
 @@ form.html.ep
 <div id=form>
     <form action="/q">
-        <input name="term" value="<%= $module %>">
+        <input size=15 name="term" value="<%= $module %>">
         <input type="submit" value="Search">
     </form>
 </div>
