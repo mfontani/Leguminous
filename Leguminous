@@ -262,7 +262,7 @@ No modules found.
     </p>
     <div>
         <form action="/q">
-            <input name="term">
+            <input name="term" value=".">
             <input type="submit" value="Search">
         </form>
     </div>
