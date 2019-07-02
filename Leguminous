@@ -119,6 +119,7 @@ package main;
 use Mojolicious::Lite;
 use Pod::POM;
 use File::Find::Rule;
+use Mojo::File qw<>;
 
 sub module_directories {
     return grep { -d $_ } '.', './lib', grep { !ref $_ } @INC;
@@ -175,6 +176,22 @@ get '/:module' => sub {
         title    => $module,
         module   => $module,
         empty    => $pomhtml =~ /^\s*$/g ? 1 : 0,
+    );
+};
+
+get '/src/:module' => sub {
+    my $self     = shift;
+    my $module   = $self->param('module');
+    my $filename = _get_filename_for_module($module)
+      or return $self->render( template => '404', module => $module, title => 'Error' );
+    my $file     = Mojo::File->new($filename);
+    my $source   = $file->slurp;
+    $self->render(
+        template => 'src',
+        filename => $filename,
+        title    => "$module source",
+        module   => $module,
+        source   => $source,
     );
 };
 
@@ -246,7 +263,7 @@ of this service.
 % layout 'html5';
 <div id="title">
     <div>POD for <code><%= $module %></code></div>
-    <div>from <code><%= $filename %></code></div>
+    <div>from <a href="/src/<%= $module %>"><code><%= $filename %></code></a></div>
 </div>
 <details id="toc">
     <summary>ToC</summary>
@@ -262,6 +279,14 @@ of this service.
 <%== $pomhtml %>
 </div>
 
+@@ src.html.ep
+% layout 'html5';
+<div id="title">
+    <div>SOURCE for <a href="/<%= $module %>"><code><%= $module %></code></a></div>
+    <div>from <code><%= $filename %></code></div>
+</div>
+<pre id="src"><code class="lang-perl"><%= $source %></code></pre>
+
 @@ layouts/html5.html.ep
 <!doctype html>
 <html>
@@ -270,7 +295,7 @@ of this service.
     <style>
     body { margin: 0 .5em; padding: 0; }
     #title { min-height:25px; width:100%; text-align:center; background-color:#eeeebb; }
-    #pom { max-width: 800px; margin: auto; }
+    #pom, #src { max-width: 800px; margin: auto; }
     #toc { font-size: 75%; position:fixed; background-color: #EEE; right: 0px; top: .5em; }
     #toc ul { margin: 0px; padding: 0px; margin-top: 5px; margin-bottom: 5px; }
     #toc li { list-style-type: none; padding-left: 15px; padding-right: 5px; }
