@@ -267,7 +267,7 @@ of this service.
     #toc { font-size: 75%; position:fixed; background-color: #EEE; right: 0px; top: 25px; }
     #toc ul { margin: 0px; padding: 0px; margin-top: 5px; margin-bottom: 5px; }
     #toc li { list-style-type: none; padding-left: 15px; padding-right: 5px; }
-    #logo { text-align: center; font-size: 60%; position:fixed; right: 2px; top: 1px; z-index: 9;}
+    #logo { text-align: center; font-size: 60%; position:fixed; right: 2px; bottom: 1px; z-index: 9; background-color: #eeb;}
     </style>
     <link rel=stylesheet href=/prism.css>
 </head>
