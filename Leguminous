@@ -319,7 +319,7 @@ We cannot handle spaces in the search term.
     body { margin: 0 .5em; padding: 0; }
     #title { min-height:25px; width:100%; text-align:center; background-color:#eeeebb; }
     #pom, #src, #index, #list, #error { max-width: 800px; margin: auto; }
-    #toc { font-size: 75%; position:fixed; background-color: #EEE; right: 0px; top: .5em; max-height: 100%; overflow-y: scroll; }
+    #toc { font-size: 75%; position:fixed; background-color: #EEE; right: 0px; top: .5em; max-height: 45%; overflow-y: scroll; }
     #toc ul { margin: 0px; padding: 0px; margin-top: 5px; margin-bottom: 5px; }
     #toc li { list-style-type: none; padding-left: 15px; padding-right: 5px; }
     #logo { text-align: center; font-size: 60%; position:fixed; right: 2px; bottom: 1px; z-index: 9; background-color: #eeb;}
