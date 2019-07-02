@@ -180,7 +180,7 @@ __DATA__
 % layout 'html5';
 <h1>Ach!</h1>
 <div class="error">
-    POD for module <%= $module %> was not found.
+    POD for module <code><%= $module %></code> was not found.
 </div>
 
 @@ space.html.ep
@@ -204,7 +204,7 @@ No modules found.
 % layout 'html5';
 <h1>Leguminous</h1>
 <div>Welcome to the Leguminous POD viewer.</div>
-Go to /Module::Name to see its POD.
+Go to <code>/Module::Name</code> to see its POD.
 For example try <a href="/Mojolicious">Mojolicious</a> or 
 <a href="/Mojolicious::Lite">Mojolicious::Lite</a> or even
 <a href="/Leguminous">Leguminous</a> to read the documentation
@@ -218,7 +218,7 @@ of this service.
 
 @@ pod.html.ep
 % layout 'html5';
-<div id="title">POD for <%= $module %> (<%= $filename %>)</div>
+<div id="title">POD for <code><%= $module %></code> from <code><%= $filename %></code></div>
 <div style="height:20px;"></div>
 <div id="toc"><%== $pomtoc %></div>
 <div id="pom">
