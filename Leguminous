@@ -278,7 +278,7 @@ We cannot handle spaces in the search term.
 @@ pod.html.ep
 % layout 'html5';
 <div id="title">
-    <div>POD for <code><%= $module %></code></div>
+    <div><a href="/">Leguminous</a> - POD for <code><%= $module %></code></div>
     <div>from <a href="/src/<%= $module %>"><code><%= $filename %></code></a></div>
 </div>
 <details id="toc">
