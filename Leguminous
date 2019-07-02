@@ -60,6 +60,8 @@ sub view_verbatim {
     # Kill "stray" two- or four- spaces at the beginning of the blocks
     if ($text =~ m!\A[ ]{2}\S!xms) {
         $text =~ s!^[ ]{2}!!xmsg;
+    } elsif ($text =~ m!\A[ ]{3}\S!xms) {
+        $text =~ s!^[ ]{3}!!xmsg;
     } elsif ($text =~ m!\A[ ]{4}\S!xms) {
         $text =~ s!^[ ]{4}!!xmsg;
     }
