@@ -486,7 +486,7 @@ Checks .pod before .pm.
 
 =head1 COPYRIGHT
 
-Leguminous is Copyright (C) 2010,2013 Marco Fontani L<MFONTANI@cpan.org>.
+Leguminous is Copyright (C) 2010-2019 Marco Fontani L<MFONTANI@cpan.org>.
 
 =head1 CONTRIBUTORS
 
