@@ -57,6 +57,12 @@ sub view_verbatim {
         s/</&lt;/g;
         s/>/&gt;/g;
     }
+    # Kill "stray" two- or four- spaces at the beginning of the blocks
+    if ($text =~ m!\A[ ]{2}\S!xms) {
+        $text =~ s!^[ ]{2}!!xmsg;
+    } elsif ($text =~ m!\A[ ]{4}\S!xms) {
+        $text =~ s!^[ ]{4}!!xmsg;
+    }
     return "<pre><code class=lang-perl>$text</code></pre>\n\n";
 }
 
