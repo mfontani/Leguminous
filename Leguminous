@@ -287,6 +287,7 @@ No modules found.
 % if ($empty) {
 <div style="height:20px;"></div>
 <div id="nopod">This module has no POD :(</div>
+<p>Look at its <a href="/src/<%= $module %>">source</a>?</p>
 % }
 <%== $pomhtml %>
 </div>
