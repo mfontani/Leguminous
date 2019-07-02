@@ -299,7 +299,7 @@ We cannot handle spaces in the search term.
 @@ src.html.ep
 % layout 'html5';
 <div id="title">
-    <div>SOURCE for <a href="/<%= $module %>"><code><%= $module %></code></a></div>
+    <div><a href="/">Leguminous</a> - SOURCE for <a href="/<%= $module %>"><code><%= $module %></code></a></div>
     <div>from <code><%= $filename %></code></div>
 </div>
 <pre id="src"><code class="lang-perl"><%= $source %></code></pre>
