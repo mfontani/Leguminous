@@ -262,7 +262,7 @@ We cannot handle spaces in the search term.
         or <code>/src/Module::Name</code> to see its source code.
     </p>
     <p>
-        For example try <a href="/Mojolicious">Mojolicious</a> or 
+        For example try <a href="/Mojolicious">Mojolicious</a> or
         <a href="/Mojolicious::Lite">Mojolicious::Lite</a> or even
         <a href="/Leguminous">Leguminous</a> to read the documentation
         of this service.
