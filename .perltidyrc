@@ -1,3 +1,9 @@
 -ce     # cuddle elses
 -l=119  # max 119 columns
--i=4    # two spaces per indent thanks
+-i=4    # four spaces per indent thanks
+-ci=4   # same for continuation indentation
+-pt=2   # tighter parens
+-sbt=2  # tighter brackets
+
+-st     # file to STDOUT
+-se     # errors to STDERR
