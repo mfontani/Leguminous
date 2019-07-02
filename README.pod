@@ -11,7 +11,7 @@ Request /Module::Name to get its pod, or /src/Module::Name for its source code.
 Searchs for bare filename, filename.pod and filename.pm in @INC.
 
 Links to itself (/Module::Name) for C<LE<lt>E<gt>> links which reference module
-names, as well as to a local hash fragments for C<LE<lt>/E<gt>>> links which
+names, as well as to a local hash fragments for C<LE<lt>/E<gt>> links which
 link to local sections.
 
 It rendered the previous POD atrocity correctly.
