@@ -98,12 +98,18 @@ sub module_directories {
     return grep { -d $_ } '.', './lib', grep { !ref $_ } @INC;
 }
 
-get '/' => 'index';
+get '/' => sub {
+    my $self = shift;
+    $self->render(
+        template => 'index',
+        title    => '',
+    );
+};
 
 get '/q' => sub {
     my $self   = shift;
     my $module = $self->param('term');
-    return $self->render(template => 'space') if $module =~ /\s/;
+    return $self->render(template => 'space', title => 'Error') if $module =~ /\s/;
     my @hits;
     for my $dir ( module_directories() ) {
         next if ref $dir;
@@ -122,6 +128,7 @@ get '/q' => sub {
         template => 'list',
         hits     => \@hits,
         hitcount => scalar(@hits),
+        title    => $module,
     );
 };
 
@@ -129,7 +136,7 @@ get '/:module' => sub {
     my $self   = shift;
     my $module = $self->param('module');
     my $file   = _get_filename_for_module($module)
-      or return $self->render( template => '404', module => $module );
+      or return $self->render( template => '404', module => $module, title => 'Error' );
     my $parser  = Pod::POM->new;
     my $pom     = $parser->parse_file($file);
     my $pomhtml = Leguminous::View->print($pom);
@@ -209,11 +216,6 @@ of this service.
 </form>
 </div>
 
-@@ pod_error.html.ep
-% my $title = 'POD error';
-% layout 'html5';
-Error processing POD: <%= $error %>
-
 @@ pod.html.ep
 % layout 'html5';
 <div id="title">POD for <%= $module %> (<%= $filename %>)</div>
@@ -231,7 +233,7 @@ Error processing POD: <%= $error %>
 <!doctype html>
 <html>
 <head>
-    <title>Leguminous</title>
+    <title><%= $title %><%= ' · ' if $title %>Leguminous</title>
     <style>
     body { margin: 0px; padding: 0px; margin-left: 5px; margin-right: 5px; }
     #title { height:25px; width:100%; text-align:center; background-color:#eeeebb; position: fixed; top: 0px; }
