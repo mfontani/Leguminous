@@ -124,7 +124,7 @@ use File::Find::Rule;
 use Path::Tiny qw<>;
 
 sub module_directories {
-    return grep { -d $_ } '.', './lib', grep { !ref $_ } @INC;
+    return grep { -d $_ } grep { !ref $_ } @INC;
 }
 
 get '/' => sub {
