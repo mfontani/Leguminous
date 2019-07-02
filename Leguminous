@@ -84,7 +84,7 @@ sub view_head1 {
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
     return
-        "</li><li><a href=\"#__$sanitized_title\">$title</a>\n<ul>\n"
+        "<li><a href=\"#__$sanitized_title\">$title</a>\n<ul>\n"
       . $head1->content->present($self)
       . "</ul></li>\n";
 }
