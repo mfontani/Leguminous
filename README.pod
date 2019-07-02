@@ -1,23 +1,25 @@
 =head1 LEGUMINOUS
 
-A POD viewer for modules residing in the current directory or anywhere in @INC
+A POD viewer for modules residing in C<@INC>.
 
 Based on Mojolicious::Lite L<http://mojolicious.org>
 
 =head1 FEATURES
 
-Just request /Module::Name to get its pod.
+Request /Module::Name to get its pod, or /src/Module::Name for its source code.
 
-Searchs for bare filename, filename.pod and filename.pm, in both
-the current directory, lib/, and anywhere in @INC.
+Searchs for bare filename, filename.pod and filename.pm in @INC.
 
-Links to itself for C<LE<lt>E<gt>> links which reference module names.
+Links to itself (/Module::Name) for C<LE<lt>E<gt>> links which reference module
+names, as well as to a local hash fragments for C<LE<lt>/E<gt>>> links which
+link to local sections.
 
 It rendered the previous POD atrocity correctly.
 
 Creates a TOC from all the head1/head2 in the pod.
 
-Requires POD::Pom and Mojolicious.
+Requires "just" Pod::POM::View::HTML, Path::Tiny, File::Find::Rule and
+Mojolicious. Practically nothing. Easily installable via carton.
 
 =head1 STATUS
 
@@ -28,7 +30,7 @@ Very alpha, but works!
 Has no quotes from Futurama or The Simpsons yet in the source,
 as required by common Mojolicious modules practice.
 
-May render some http links incorrectly.
+May render some http links incorrectly. I've done my best. Patches welcome.
 
 See the issues page; open one if you have problems, or if you have
 a witty quote to be added.
