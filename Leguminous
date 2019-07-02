@@ -244,9 +244,16 @@ of this service.
 
 @@ pod.html.ep
 % layout 'html5';
-<div id="title">POD for <code><%= $module %></code> from <code><%= $filename %></code></div>
-<div style="height:20px;"></div>
-<div id="toc"><%== $pomtoc %></div>
+<div id="title">
+    <div>POD for <code><%= $module %></code></div>
+    <div>from <code><%= $filename %></code></div>
+</div>
+<details id="toc">
+    <summary>ToC</summary>
+    <div id="pom">
+        <%== $pomtoc %>
+    </div>
+</details>
 <div id="pom">
 % if ($empty) {
 <div style="height:20px;"></div>
@@ -261,10 +268,10 @@ of this service.
 <head>
     <title><%= $title %><%= ' · ' if $title %>Leguminous</title>
     <style>
-    body { margin: 0px; padding: 0px; margin-left: 5px; margin-right: 5px; }
-    #title { height:25px; width:100%; text-align:center; background-color:#eeeebb; position: fixed; top: 0px; }
-    #pom { width: 800px; margin: auto; }
-    #toc { font-size: 75%; position:fixed; background-color: #EEE; right: 0px; top: 25px; }
+    body { margin: 0 .5em; padding: 0; }
+    #title { min-height:25px; width:100%; text-align:center; background-color:#eeeebb; }
+    #pom { max-width: 800px; margin: auto; }
+    #toc { font-size: 75%; position:fixed; background-color: #EEE; right: 0px; top: .5em; }
     #toc ul { margin: 0px; padding: 0px; margin-top: 5px; margin-bottom: 5px; }
     #toc li { list-style-type: none; padding-left: 15px; padding-right: 5px; }
     #logo { text-align: center; font-size: 60%; position:fixed; right: 2px; bottom: 1px; z-index: 9; background-color: #eeb;}
