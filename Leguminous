@@ -365,6 +365,38 @@ We cannot handle spaces in the search term.
     <div>from <code><%= $filename %></code></div>
 </div>
 <pre id="src"><code class="lang-perl"><%= $source %></code></pre>
+<script>
+// Lifted from https://jsfiddle.net/tovic/AbpRD/ and suitably modified
+(function() {
+    var pre = document.getElementById('src');
+    pre.innerHTML = '<span class="line-number"></span>' + pre.innerHTML + '<span class="cl"></span>';
+    var num = pre.innerHTML.split(/\n/).length;
+    for (var j = 0; j < num; j++) {
+        var line_num = pre.getElementsByTagName('span')[0];
+        var lineno   = j + 1;
+        line_num.innerHTML += '<span id="line_' + lineno + '"><a href="#line_' + lineno + '">' + lineno + '</a></span>';
+    }
+})();
+</script>
+<style>
+pre .line-number {
+  float: left;
+  margin: 0 1em 0 -1em;
+  border-right: 1px solid;
+  text-align: right;
+}
+pre .line-number span {
+  display: block;
+  padding: 0 .5em 0 1em;
+}
+pre .line-number a {
+  color: #eee;
+}
+pre .cl {
+  display: block;
+  clear: both;
+}
+</style>
 
 @@ layouts/html5.html.ep
 <!doctype html>
