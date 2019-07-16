@@ -463,7 +463,7 @@ pre .cl {
 </head>
 <body>
     <%== content %>
-    <div id="logo">Powered by <a href="http://github.com/mfontani/Leguminous">Leguminous</a> | <a href="/">home</a></div>
+    <div id="logo">Powered by <a href="https://github.com/mfontani/Leguminous">Leguminous</a> | <a href="/">home</a></div>
     <script src=/prism.js></script>
 </body>
 </html>
