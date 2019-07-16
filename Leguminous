@@ -186,23 +186,28 @@ get '/q' => sub {
         if $module =~ /\s/;
 
     my @hits;
+    my $count = 0;
     for my $dir (module_directories()) {
         next if ref $dir;
         my @files = File::Find::Rule->file->name('*.pod', '*.pm')->relative->in($dir);
+        my @local_hits;
         foreach my $f (@files) {
             next if $f =~ /^site_perl/;
             next if $f =~ /^5\./;
             $f =~ s{\.(pod|pm)$}{};
             $f =~ s{/}{::}g;
             if ($f =~ m{$module}i) {
-                push @hits, $f;
+                push @local_hits, $f;
+                $count++;
             }
         }
+        push @hits, [ $dir, [@local_hits] ]
+            if @local_hits;
     }
     $self->render(
         template => 'list',
         hits     => \@hits,
-        hitcount => scalar(@hits),
+        hitcount => $count,
         title    => $module,
         module   => $module,
     );
@@ -299,10 +304,16 @@ We cannot handle spaces in the search term.
     %= include 'form'
     <h2>Search results for <code><%= $title %></code></h2>
     % if ($hitcount) {
-    <ul>
-    % for my $file (@$hits) {
-    <li><a href="/<%= $file %>"><%= $file %></a>
-    % }
+    <ul style="padding-left:0;list-style-type:none">
+        % for my $hit (@$hits) {
+        <li><code><%= $hit->[0] %></code>
+            <ul>
+            % for my $file (@{ $hit->[1] }) {
+            <li><a href="/<%= $file %>"><code><%= $file %></code></a>
+            % }
+            </ul>
+        </li>
+        % }
     </ul>
     % } else {
     No modules found.
