@@ -358,6 +358,25 @@ We cannot handle spaces in the search term.
 </div>
 
 @@ pod.html.ep
+% $c->stash->{additional_head} = begin
+<style>
+h1 a:first-of-type,
+h2 a:first-of-type {
+  display: none;
+  width: 1.5rem;
+}
+h1:hover,
+h2:hover {
+  position: relative;
+  left: -1.5rem;
+}
+h1:hover > a:first-of-type,
+h2:hover > a:first-of-type {
+  display: inline-block;
+  color: #aaa;
+}
+</style>
+% end
 % layout 'html5';
 <div id="title">
     <div><a href="/">Leguminous</a> - POD for <code><%= $module %></code></div>
@@ -379,44 +398,9 @@ We cannot handle spaces in the search term.
 % }
 <%== $pomhtml %>
 </div>
-<style>
-h1 a:first-of-type,
-h2 a:first-of-type {
-  display: none;
-  width: 1.5rem;
-}
-h1:hover,
-h2:hover {
-  position: relative;
-  left: -1.5rem;
-}
-h1:hover > a:first-of-type,
-h2:hover > a:first-of-type {
-  display: inline-block;
-  color: #aaa;
-}
-</style>
 
 @@ src.html.ep
-% layout 'html5';
-<div id="title">
-    <div><a href="/">Leguminous</a> - SOURCE for <a href="/<%= $module %>"><code><%= $module %></code></a></div>
-    <div>from <code><%= $filename %></code></div>
-</div>
-<pre id="src"><code class="lang-perl"><%= $source %></code></pre>
-<script>
-// Lifted from https://jsfiddle.net/tovic/AbpRD/ and suitably modified
-(function() {
-    var pre = document.getElementById('src');
-    pre.innerHTML = '<span class="line-number"></span>' + pre.innerHTML + '<span class="cl"></span>';
-    var num = pre.innerHTML.split(/\n/).length;
-    for (var j = 0; j < num; j++) {
-        var line_num = pre.getElementsByTagName('span')[0];
-        var lineno   = j + 1;
-        line_num.innerHTML += '<span id="line_' + lineno + '"><a href="#line_' + lineno + '">' + lineno + '</a></span>';
-    }
-})();
-</script>
+% $c->stash->{additional_head} = begin
 <style>
 pre .line-number {
   float: left;
@@ -436,6 +420,26 @@ pre .cl {
   clear: both;
 }
 </style>
+% end
+% layout 'html5';
+<div id="title">
+    <div><a href="/">Leguminous</a> - SOURCE for <a href="/<%= $module %>"><code><%= $module %></code></a></div>
+    <div>from <code><%= $filename %></code></div>
+</div>
+<pre id="src"><code class="lang-perl"><%= $source %></code></pre>
+<script>
+// Lifted from https://jsfiddle.net/tovic/AbpRD/ and suitably modified
+(function() {
+    var pre = document.getElementById('src');
+    pre.innerHTML = '<span class="line-number"></span>' + pre.innerHTML + '<span class="cl"></span>';
+    var num = pre.innerHTML.split(/\n/).length;
+    for (var j = 0; j < num; j++) {
+        var line_num = pre.getElementsByTagName('span')[0];
+        var lineno   = j + 1;
+        line_num.innerHTML += '<span id="line_' + lineno + '"><a href="#line_' + lineno + '">' + lineno + '</a></span>';
+    }
+})();
+</script>
 
 @@ layouts/html5.html.ep
 <!doctype html>
@@ -453,6 +457,9 @@ pre .cl {
     #logo { text-align: center; font-size: 60%; position:sticky; bottom: 0px; z-index: 9; background-color: #fff; }
     </style>
     <link rel=stylesheet href=/prism.css>
+    % if ($c->stash->{additional_head}) {
+        %== $c->stash->{additional_head}->()
+    % }
 </head>
 <body>
     <%== content %>
