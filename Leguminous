@@ -449,7 +449,7 @@ pre .cl {
     <style>
     body { margin: 0 .5em; padding: 0; }
     #title { text-align:center; top: 0px; z-index: 9; }
-    #pom, #src, #index, #list, #error { max-width: 800px; margin: auto; }
+    #pom, #src, #index, #list, #error { max-width: 1000px; margin: auto; }
     #toc { font-size: 14px; text-align: initial; min-width: 10%; position:fixed; background-color: #EEE; right: 0; top: 5em; max-height: 45%; overflow-y: scroll; }
     #toc ul { margin: 0px; padding: 0px; margin-top: 5px; margin-bottom: 5px; }
     #toc li { list-style-type: none; padding-left: 15px; padding-right: 5px; }
