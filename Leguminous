@@ -356,12 +356,14 @@ We cannot handle spaces in the search term.
 <div id="title">
     <div><a href="/">Leguminous</a> - POD for <code><%= $module %></code></div>
     <div>from <a href="/src/<%= $module %>"><code><%= $filename %></code></a></div>
+    % if (defined $pomtoc && length $pomtoc) {
     <details id="toc">
         <summary>ToC</summary>
         <div id="tocpom">
             <%== $pomtoc %>
         </div>
     </details>
+    % }
 </div>
 <div id="pom">
 % if ($empty) {
