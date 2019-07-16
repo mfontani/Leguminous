@@ -251,7 +251,7 @@ get '/src/:module' => sub {
 
     my $module = $self->param('module');
 
-    my $filename = _get_filename_for_module($module)
+    my $filename = _get_filename_for_module($module, 1)
         or return $self->render(template => '404', module => $module, title => 'Error');
 
     my $file   = Path::Tiny::path($filename);
@@ -268,6 +268,7 @@ get '/src/:module' => sub {
 
 sub _get_filename_for_module {
     my $module = shift;
+    my $not_the_pod_please = shift;
 
     my $mod_slashes = $module;
     $mod_slashes =~ s!::!/!g;
@@ -276,7 +277,15 @@ sub _get_filename_for_module {
         next if ref $prefix;
         my $curfile = $prefix . '/' . $mod_slashes;
         return $curfile if -f $curfile;
-        $curfile =~ s/$/\.pod/;
+        if ($not_the_pod_please) {
+            $curfile =~ s/$/.pm/;
+            return $curfile if -f $curfile;
+            # Right, there's no PM so HAVE to use the POD?
+            $curfile =~ s/[.]pm$/.pod/;
+            return $curfile if -f $curfile;
+            next;
+        }
+        $curfile =~ s/$/.pod/;
         return $curfile if -f $curfile;
         $curfile =~ s/pod$/pm/;
         return $curfile if -f $curfile;
