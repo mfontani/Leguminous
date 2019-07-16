@@ -443,7 +443,7 @@ pre .cl {
 
 @@ layouts/html5.html.ep
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <title><%= $title %><%= ' · ' if $title %>Leguminous</title>
     <style>
