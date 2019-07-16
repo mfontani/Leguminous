@@ -131,7 +131,13 @@ sub view_head1 {
     my $sanitized_title = $title;
     $sanitized_title =~ s/\W//g;
 
-    return "<li><a href=\"#$sanitized_title\">$title</a>\n<ul>\n" . $head1->content->present($self) . "</ul></li>\n";
+    my $content = $head1->content->present($self);
+    my $return = "<li><a href=\"#$sanitized_title\">$title</a>\n";
+    if ($content && length $content && $content !~ m!\A\s*\z!xms) {
+        $return .= "<ul>\n" . $content . "</ul>";
+    }
+    $return .= "</li>\n";
+    return $return;
 }
 
 sub view_head2 {
@@ -359,9 +365,9 @@ We cannot handle spaces in the search term.
     % if (defined $pomtoc && length $pomtoc) {
     <details id="toc">
         <summary>ToC</summary>
-        <div id="tocpom">
+        <ul id="tocpom">
             <%== $pomtoc %>
-        </div>
+        </ul>
     </details>
     % }
 </div>
