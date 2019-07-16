@@ -170,6 +170,9 @@ sub module_directories {
 get '/' => sub {
     my $self = shift;
 
+    # If you want to have the homepage just be "list all modules"
+    # return $self->redirect_to($self->url_for('/q?term=.'));
+
     $self->render(
         template => 'index',
         title    => '',
