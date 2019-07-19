@@ -198,7 +198,7 @@ get '/q' => sub {
     my $count = 0;
     for my $dir (module_directories()) {
         next if ref $dir;
-        my @files = File::Find::Rule->file->name('*.pod', '*.pm')->relative->in($dir);
+        my @files = sort File::Find::Rule->file->name('*.pod', '*.pm')->relative->in($dir);
         my @local_hits;
         foreach my $f (@files) {
             next if $f =~ /^site_perl/;
